@@ -33,6 +33,7 @@
 !.env.*.example
 **/secrets.json
 **/appsettings.Local.json
+**/appsettings.json
 **/appsettings.Development.local.json
 **/*.pfx
 **/*.p12
