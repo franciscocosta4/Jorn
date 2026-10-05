@@ -1,34 +1,37 @@
-import "./App.css";
-import { useEffect, useState } from "react";
-function App() {
-  // Guarda os dados recebidos da API.
-  const [data, setData] = useState([]);
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-  // Executa quando o componente é carregado.
-  useEffect(() => {
-    // Faz um pedido GET à API.
-    fetch("http://localhost:5259/weatherforecast")
-      // Converte a resposta para JSON.
-      .then((response) => response.json())
-      // Guarda os dados no estado do React.
-      .then((dados) => setData(dados));
-  }, []);
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>Frontend</p>
-        {data.map((d) => (
-          <div>
-            <strong>{d.date}</strong>
-            <span>/ {d.temperatureC}</span>
-            <span>/ {d.temperatureF}</span>
-            <span>/ {d.summary}</span>
-          </div>
-        ))}
-      </header>
-    </div>
-  );
+export default function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+
+                {/* Páginas públicas */}
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
+
+                {/* Página protegida */}
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute>
+                            <Home />
+                        </ProtectedRoute>
+                    }
+                />
+
+            </Routes>
+        </BrowserRouter>
+    );
 }
-
-export default App;
