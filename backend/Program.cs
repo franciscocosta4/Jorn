@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using backend.Data;
+using backend.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // ApplicationDbContext é responsável por guardar os dados do Identity
 // no PostgreSQL.
 builder.Services
-    .AddIdentityApiEndpoints<IdentityUser>()
+    .AddIdentityApiEndpoints<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Usa o cookie do Identity como scheme de autenticação por omissão.
@@ -94,11 +95,15 @@ app.MapControllers();
 
 // Mapeia os endpoints do ASP.NET Core Identity.
 // Isto cria endpoints como /register, /login, /refresh, etc.
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<ApplicationUser>();
 
 // Devolve o utilizador actualmente autenticado via cookie.
 app.MapGet("/api/users/me", (ClaimsPrincipal user) =>
-    Results.Ok(new { email = user.Identity?.Name }))
+    Results.Ok(new
+    {
+        id = user.FindFirstValue(ClaimTypes.NameIdentifier),
+        email = user.Identity?.Name
+    }))
     .RequireAuthorization();
 
 // Termina a sessão limpando o cookie de autenticação.
