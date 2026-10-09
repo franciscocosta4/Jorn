@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using backend.Data;
 using backend.Entities;
+using backend.DTOs.ToDos;
 
 namespace backend.Controllers
 {
@@ -25,10 +26,15 @@ namespace backend.Controllers
 
     [Authorize]
     [HttpGet(Name = "GetToDos")]
-    public async Task<ActionResult<IEnumerable<ToDo>>> GetToDos()
+    public async Task<ActionResult<IEnumerable<ToDoResponse>>> GetToDos()
     {
         var todos = await _context.ToDos
-            .Include(t => t.User)
+            .Select(todo => new ToDoResponse
+            {
+                Id = todo.Id,
+                Name = todo.Name,
+                Done = todo.Done
+            })
             .ToListAsync();
 
         return Ok(todos);
