@@ -24,55 +24,83 @@ namespace backend.Controllers
             _userManager = userManager;
         }
 
-    [Authorize]
-    [HttpGet(Name = "GetToDos")]
-    public async Task<ActionResult<IEnumerable<ToDoResponse>>> GetToDos()
-    {
-        var todos = await _context.ToDos
-            .Select(todo => new ToDoResponse
-            {
-                Id = todo.Id,
-                Name = todo.Name,
-                Done = todo.Done
-            })
-            .ToListAsync();
-
-        return Ok(todos);
-    }
-    
-    [Authorize]
-    [HttpPost(Name = "CreateTodo")]
-    public async Task<ActionResult<ToDo>> CreateTodo(CreateToDoRequest request)
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user is null)
+        [Authorize]
+        [HttpGet(Name = "GetToDos")]
+        public async Task<ActionResult<IEnumerable<ToDoResponse>>> GetToDos()
         {
-            return Unauthorized();
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            var todos = await _context.ToDos
+                .Where(todo => todo.UserId == user.Id)
+                .Select(todo => new ToDoResponse
+                {
+                    Id = todo.Id,
+                    Name = todo.Name,
+                    Done = todo.Done
+                })
+                .ToListAsync();
+
+            return Ok(todos);
         }
 
-        var todo = new ToDo
+        [Authorize]
+        [HttpPost(Name = "CreateTodo")]
+        public async Task<ActionResult<ToDo>> CreateTodo(CreateToDoRequest request)
         {
-            Name = request.Name.Trim(),
-            Done = false,
-            CreatedAt = DateTime.UtcNow,
-            UserId = user.Id
-        };
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
 
-        _context.ToDos.Add(todo);
+            var todo = new ToDo
+            {
+                Name = request.Name.Trim(),
+                Done = false,
+                CreatedAt = DateTime.UtcNow,
+                UserId = user.Id
+            };
 
-        await _context.SaveChangesAsync();
+            _context.ToDos.Add(todo);
 
-        // Devolve HTTP 201 Created
-        return CreatedAtAction(
-            nameof(GetToDos),
-            null,
-            todo
-        );
-    }
-    }
-    public sealed class CreateToDoRequest
-    {
-        public string Name { get; set; } = string.Empty;
+            await _context.SaveChangesAsync();
+
+            // Devolve HTTP 201 Created
+            return CreatedAtAction(
+                nameof(GetToDos),
+                null,
+                todo
+            );
+        }
+
+        [Authorize]
+        [HttpPost(Name = "DeleteToDo")]
+        public async Task<ActionResult<ToDo>> DeleteTodo(ToDo request)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            if (user.Id != request.UserId)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                _context.ToDos.Remove(request);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Devolve 200 
+            return Ok();
+        }
     }
 
-    }
+
+}

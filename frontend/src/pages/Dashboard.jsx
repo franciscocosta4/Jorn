@@ -25,7 +25,7 @@ export default function Home() {
         }
 
         const dados = await response.json();
-        setTodos(dados.filter((todo) => todo.userId === user?.id));
+        setTodos(dados);
       } catch (requestError) {
         setError(requestError.message);
       } finally {
