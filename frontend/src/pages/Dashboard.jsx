@@ -12,6 +12,7 @@ export default function Home() {
   const [newTodoName, setNewTodoName] = useState("");
   const [creatingTodo, setCreatingTodo] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     async function loadTodos() {
@@ -39,6 +40,32 @@ export default function Home() {
       setLoading(false);
     }
   }, [user]);
+
+  async function handleDeleteTodo(id) {
+    if (!user?.id) {
+      setError("Não foi possível identificar o utilizador autenticado.");
+      return;
+    }
+
+    setDeletingId(id);
+
+    try {
+      const response = await fetch(`${API_URL}/ToDo/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Não foi possível apagar o todo.");
+      }
+
+      setTodos((currentTodos) => currentTodos.filter((t) => t.id !== id));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   async function handleCreateTodo(event) {
     event.preventDefault();
@@ -145,6 +172,14 @@ export default function Home() {
                   {todo.done ? "✓" : "○"}
                 </span>
                 <span> {todo.name}</span>
+                <button
+                  className="delete-todo-button"
+                  onClick={() => handleDeleteTodo(todo.id)}
+                  disabled={deletingId === todo.id}
+                  aria-label={`Apagar ${todo.name}`}
+                >
+                  {deletingId === todo.id ? "A apagar..." : "Apagar todo"}
+                </button>
               </li>
             ))}
           </ul>

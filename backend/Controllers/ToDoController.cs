@@ -37,6 +37,7 @@ namespace backend.Controllers
                 .Where(todo => todo.UserId == user.Id)
                 .Select(todo => new ToDoResponse
                 {
+                    UserId = todo.UserId,
                     Id = todo.Id,
                     Name = todo.Name,
                     Done = todo.Done
@@ -77,8 +78,8 @@ namespace backend.Controllers
         }
 
         [Authorize]
-        [HttpDelete(Name = "DeleteToDo")]
-        public async Task<ActionResult<ToDo>> DeleteTodo(ToDo request)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTodo(int id)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -86,18 +87,20 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            if (user.Id != request.UserId)
+            var todo = await _context.ToDos.FindAsync(id);
+            if (todo is null)
+            {
+                return NotFound();
+            }
+
+            if (user.Id != todo.UserId)
             {
                 return Unauthorized();
             }
-            else
-            {
-                _context.ToDos.Remove(request);
-            }
 
+            _context.ToDos.Remove(todo);
             await _context.SaveChangesAsync();
 
-            // Devolve 200 
             return Ok();
         }
     }
