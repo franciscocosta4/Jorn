@@ -77,7 +77,7 @@ namespace backend.Controllers
         }
 
         [Authorize]
-        [HttpPost(Name = "DeleteToDo")]
+        [HttpDelete(Name = "DeleteToDo")]
         public async Task<ActionResult<ToDo>> DeleteTodo(ToDo request)
         {
             var user = await _userManager.GetUserAsync(User);
