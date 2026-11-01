@@ -2,10 +2,21 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using backend.Configuration;
 using backend.Data;
 using backend.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Regista o HttpClient para permitir chamadas a APIs externas.
+builder.Services.AddHttpClient();
+
+builder.Services
+    .AddOptions<ApiSettings>()
+    .Bind(builder.Configuration.GetSection("ApiSettings"))
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.ApiKey),
+        "ApiSettings:ApiKey tem de estar configurada.")
+    .ValidateOnStart();
 
 // Adiciona os Controllers.
 builder.Services.AddControllers();
