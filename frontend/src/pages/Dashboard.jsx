@@ -1,18 +1,43 @@
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import "./Dashboard.css";
+import Checkbox from '@mui/material/Checkbox';
 
 const API_URL = "http://localhost:5259";
+
+function formatDate(timestamp) {
+  return new Date(timestamp * 1000).toLocaleString("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatNumber(value, decimals = 2) {
+  return value.toFixed(decimals);
+}
+
+function formatPercent(value, decimals = 2) {
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(decimals)}%`;
+}
 
 export default function Home() {
   const { user, logout } = useAuth();
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [newTodoName, setNewTodoName] = useState("");
   const [creatingTodo, setCreatingTodo] = useState(false);
   const [createError, setCreateError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+
+  const [etfPrices, setEtfPrices] = useState([]);
+  const [etfLoading, setEtfLoading] = useState(true);
+  const [etfError, setEtfError] = useState("");
 
   useEffect(() => {
     async function loadTodos() {
@@ -38,6 +63,33 @@ export default function Home() {
       loadTodos();
     } else {
       setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    async function loadEtfPrices() {
+      try {
+        const response = await fetch(`${API_URL}/Finnhub`, {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar os preços dos ETFs.");
+        }
+
+        const dados = await response.json();
+        setEtfPrices(dados);
+      } catch (requestError) {
+        setEtfError(requestError.message);
+      } finally {
+        setEtfLoading(false);
+      }
+    }
+
+    if (user?.id) {
+      loadEtfPrices();
+    } else {
+      setEtfLoading(false);
     }
   }, [user]);
 
@@ -86,13 +138,9 @@ export default function Home() {
     try {
       const response = await fetch(`${API_URL}/ToDo`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          name,
-        }),
+        body: JSON.stringify({ name }),
       });
 
       if (!response.ok) {
@@ -169,9 +217,9 @@ export default function Home() {
             {todos.map((todo) => (
               <li className={`todo-item${todo.done ? " todo-item-done" : ""}`} key={todo.id}>
                 <span className="todo-status" aria-hidden="true">
-                  {todo.done ? "✓" : "○"}
-                </span>
-                <span> {todo.name}</span>
+                  {todo.done ? <Checkbox defaultChecked   size="small"/> : <Checkbox  size="small" /> } 
+                </span>  
+                <span > {todo.name}</span>
                 <button
                   className="delete-todo-button"
                   onClick={() => handleDeleteTodo(todo.id)}
@@ -183,6 +231,70 @@ export default function Home() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section className="etf-section" aria-labelledby="etf-heading">
+        <div className="section-heading">
+          <h2 id="etf-heading">Preços dos ETFs</h2>
+          {!etfLoading && !etfError && etfPrices.length > 0 && (
+            <span className="etf-count">{etfPrices.length} ETFs</span>
+          )}
+        </div>
+
+        {etfLoading && <p className="status-message">A carregar preços...</p>}
+        {etfError && <p className="status-message error-message">{etfError}</p>}
+        {!etfLoading && !etfError && etfPrices.length === 0 && (
+          <p className="status-message">Nenhum ETF encontrado.</p>
+        )}
+        {!etfLoading && !etfError && etfPrices.length > 0 && (
+          <div className="etf-grid">
+            {etfPrices.map((etf) => {
+              const data = etf.data;
+              const isPositive = data.d >= 0;
+              const changeClass = isPositive ? "positive" : "negative";
+
+              return (
+                <article className="etf-card" key={etf.symbol}>
+                  <div className="etf-card-header">
+                    <h3 className="etf-symbol">{etf.symbol}</h3>
+                    <span className={`etf-change ${changeClass}`}>
+                      {formatPercent(data.dp)}
+                    </span>
+                  </div>
+                  <p className="etf-name">{etf.name}</p>
+
+                  <div className="etf-price-row">
+                    <span className="etf-price">{formatNumber(data.c)}</span>
+                    <span className={`etf-change-value ${changeClass}`}>
+                      {isPositive ? "+" : ""}{formatNumber(data.d)}
+                    </span>
+                  </div>
+
+                  <div className="etf-details">
+                    <div className="etf-detail-item">
+                      <span className="etf-detail-label">Abertura</span>
+                      <span className="etf-detail-value">{formatNumber(data.o)}</span>
+                    </div>
+                    <div className="etf-detail-item">
+                      <span className="etf-detail-label">Anterior</span>
+                      <span className="etf-detail-value">{formatNumber(data.pc)}</span>
+                    </div>
+                    <div className="etf-detail-item">
+                      <span className="etf-detail-label">Máxima</span>
+                      <span className="etf-detail-value">{formatNumber(data.h)}</span>
+                    </div>
+                    <div className="etf-detail-item">
+                      <span className="etf-detail-label">Mínima</span>
+                      <span className="etf-detail-value">{formatNumber(data.l)}</span>
+                    </div>
+                  </div>
+
+                  <p className="etf-timestamp">{formatDate(data.t)}</p>
+                </article>
+              );
+            })}
+          </div>
         )}
       </section>
     </main>

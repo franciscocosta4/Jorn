@@ -1,0 +1,320 @@
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+  --up: #128a3f;
+  --down: #d21e1e;
+  --line: rgba(0, 0, 0, 0.12);
+}
+
+.dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.logout-button {
+  background: none;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 0.35rem 0.9rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.logout-button:hover,
+.logout-button:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+  outline: none;
+}
+
+/* Section headings */
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.todo-count,
+.etf-count {
+  font-size: 0.8rem;
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.etf-section,
+.todos-section,
+.create-todo-section {
+  margin-bottom: 2.5rem;
+}
+
+/* Create todo */
+.create-todo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  /* border: 1px solid var(--line); */
+}
+
+.create-todo-form label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.create-todo-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.create-todo-controls input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.create-todo-controls input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.create-todo-controls button {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--bg);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.create-todo-controls button:hover:not(:disabled),
+.create-todo-controls button:focus-visible:not(:disabled) {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.create-todo-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.form-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--down);
+}
+
+/* Status messages */
+.status-message {
+  margin: 0;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.status-message.error-message {
+  color: var(--down);
+  opacity: 1;
+}
+
+/* Todos */
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.todo-status {
+  margin-right:1%;
+  width: 1.1rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.todo-item span:not(.todo-status) {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.todo-item-done span:not(.todo-status) {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.delete-todo-button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.delete-todo-button:hover:not(:disabled),
+.delete-todo-button:focus-visible:not(:disabled) {
+  border-color: var(--down);
+  color: var(--down);
+}
+
+.delete-todo-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ETFs */
+.etf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.etf-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem;
+  background: var(--bg);
+}
+
+.etf-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.etf-symbol {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.etf-name {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  opacity: 0.55;
+  min-height: 2em;
+}
+
+.etf-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.etf-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.etf-change,
+.etf-change-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.etf-change.positive,
+.etf-change-value.positive {
+  color: var(--up);
+}
+
+.etf-change.negative,
+.etf-change-value.negative {
+  color: var(--down);
+}
+
+.etf-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem 1rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.etf-detail-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.etf-detail-label {
+  opacity: 0.5;
+}
+
+.etf-detail-value {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.etf-timestamp {
+  margin: 0.6rem 0 0;
+  font-size: 0.65rem;
+  opacity: 0.4;
+}
+
+@media (max-width: 600px) {
+  .dashboard { padding: 1.5rem 1rem 3rem; }
+  .create-todo-controls { flex-direction: column; }
+  .etf-grid { grid-template-columns: 1fr; }
+  .etf-details { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
