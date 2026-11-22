@@ -48,7 +48,7 @@ namespace backend.Controllers
         }
 
         [Authorize]
-        [HttpPost(Name = "CreateTodo")]
+        [HttpPost("create", Name = "CreateTodo")]
         public async Task<ActionResult<ToDo>> CreateTodo(CreateToDoRequest request)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -75,6 +75,29 @@ namespace backend.Controllers
                 null,
                 todo
             );
+        }
+
+        [Authorize]
+        [HttpPost("markdone", Name = "MarkDone")]
+        public async Task<ActionResult<ToDo>> MarkDone(MarkDoneRequest request)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            //Buscar o todo pelo ID e verificar pertença do utilizador
+            var todo = await _context.ToDos.FirstOrDefaultAsync(t => t.Id == request.Id && t.UserId == user.Id);
+
+            if (todo is null)
+            {
+                return NotFound();
+            }
+
+            todo.Done = true;
+            await _context.SaveChangesAsync();
+
+            return Ok(todo);
         }
 
         [Authorize]

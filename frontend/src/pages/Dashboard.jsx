@@ -1,7 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import "./Dashboard.css";
-import Checkbox from '@mui/material/Checkbox';
 
 const API_URL = "http://localhost:5259";
 
@@ -119,6 +118,33 @@ export default function Home() {
     }
   }
 
+  async function handleToggleTodo(todo) {
+    if (!user?.id) {
+      setError("Não foi possível identificar o utilizador autenticado.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/ToDo/markdone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: todo.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Não foi possível atualizar o todo.");
+      }
+
+      const updatedTodo = await response.json();
+      setTodos((currentTodos) =>
+        currentTodos.map((t) => (t.id === todo.id ? updatedTodo : t))
+      );
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
   async function handleCreateTodo(event) {
     event.preventDefault();
     const name = newTodoName.trim();
@@ -136,7 +162,7 @@ export default function Home() {
     setCreateError("");
 
     try {
-      const response = await fetch(`${API_URL}/ToDo`, {
+      const response = await fetch(`${API_URL}/ToDo/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -216,10 +242,16 @@ export default function Home() {
           <ul className="todo-list">
             {todos.map((todo) => (
               <li className={`todo-item${todo.done ? " todo-item-done" : ""}`} key={todo.id}>
-                <span className="todo-status" aria-hidden="true">
-                  {todo.done ? <Checkbox defaultChecked   size="small"/> : <Checkbox  size="small" /> } 
-                </span>  
-                <span > {todo.name}</span>
+                <label className="todo-checkbox-label">
+                  <input
+                    type="checkbox"
+                    className="todo-checkbox"
+                    checked={todo.done}
+                    onChange={() => handleToggleTodo(todo)}
+                    aria-label={`Marcar "${todo.name}" como ${todo.done ? "por fazer" : "feito"}`}
+                  />
+                </label>
+                <span>{todo.name}</span>
                 <button
                   className="delete-todo-button"
                   onClick={() => handleDeleteTodo(todo.id)}

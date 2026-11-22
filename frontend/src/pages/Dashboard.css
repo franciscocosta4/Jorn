@@ -171,13 +171,29 @@
 }
 
 .todo-status {
-  margin-right:1%;
+  margin-right: 1%;
   width: 1.1rem;
   font-size: 1rem;
   text-align: center;
 }
 
-.todo-item span:not(.todo-status) {
+.todo-checkbox-label {
+  display: flex;
+  align-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+.todo-item span {
   flex: 1;
   font-size: 0.95rem;
 }
